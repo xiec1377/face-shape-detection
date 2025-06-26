@@ -25,6 +25,9 @@ from rest_framework_simplejwt.views import (
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    # path(
+    #     "api/user/login/", CreateUserView.as_view(), name="login"
+    # ),  # when we go to this route, we go to that view and create new user
     path(
         "api/user/register/", CreateUserView.as_view(), name="register"
     ),  # when we go to this route, we go to that view and create new user

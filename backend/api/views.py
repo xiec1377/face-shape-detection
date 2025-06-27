@@ -23,11 +23,11 @@ class NoteListView(generics.ListCreateAPIView):
         IsAuthenticated
     ]  # cannot access this route unless pass valid JWT token, user must be authenticated
 
-    def get(self):
+    def get_queryset(self):
         user = self.request.user
         return Note.objects.filter(author=user)  # filters all notes with this user
 
-    def create(self, serializer):
+    def perform_create(self, serializer):
         # check if serializer passed all checks for data
         if serializer.is_valid():
             serializer.save(author=self.request.user)  # manually add author
@@ -39,6 +39,6 @@ class NoteDelete(generics.DestroyAPIView):
     serializer_class = NoteSerializer
     permission_classes = [IsAuthenticated]
 
-    def get(self):
+    def get_queryset(self):
         user = self.request.user
         return Note.objects.filter(author=user)  # filters all notes with this user

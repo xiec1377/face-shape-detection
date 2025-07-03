@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { FaceMesh } from "@mediapipe/face_mesh";
 import { Camera } from "@mediapipe/camera_utils";
 
-function FaceMeshComponent() {
+function FaceMeshComponent({ setFaceshape }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   useEffect(() => {
@@ -34,14 +34,6 @@ function FaceMeshComponent() {
 
       if (results.multiFaceLandmarks) {
         for (const landmarks of results.multiFaceLandmarks) {
-          // console.log(landmarks);
-          console.log("chin:", landmarks[152])
-          console.log("left jaw:", landmarks[234])
-          console.log("right jaw:", landmarks[454])
-          console.log("forehead:", landmarks[10])
-          console.log("nose tip:", landmarks[1])
-          console.log("left cheek:", landmarks[93])
-          console.log("right cheek:", landmarks[323])
           for (const point of landmarks) {
             canvasCtx.beginPath();
             canvasCtx.arc(
@@ -53,6 +45,60 @@ function FaceMeshComponent() {
             );
             canvasCtx.fillStyle = "lime";
             canvasCtx.fill();
+          }
+          const chin = landmarks[152];
+          console.log("chin:", chin);
+          const leftJaw = landmarks[234];
+          console.log("left jaw:", leftJaw);
+          const rightJaw = landmarks[454];
+          console.log("right jaw:", rightJaw);
+          const forehead = landmarks[10];
+          console.log("forehead:", forehead);
+          const leftTemple = landmarks[127];
+          console.log("leftTemple:", leftTemple);
+          const rightTemple = landmarks[356];
+          console.log("rightTemple:", rightTemple);
+          const noseTip = landmarks[1];
+          console.log("nose tip:", noseTip);
+          const leftCheek = landmarks[93];
+          console.log("left cheek:", leftCheek);
+          const rightCheek = landmarks[323];
+          console.log("right cheek:", rightCheek);
+
+          const faceHeight = Math.hypot(
+            chin.x * canvasElement.width - forehead.x * canvasElement.width,
+            chin.y * canvasElement.height - forehead.y * canvasElement.height
+          );
+          console.log("face height:", faceHeight);
+
+          const jawWidth = Math.hypot(
+            rightJaw.x * canvasElement.width - leftJaw.x * canvasElement.width,
+            rightJaw.y * canvasElement.height - leftJaw.y * canvasElement.height
+          );
+          console.log("jaw width:", jawWidth);
+
+          const faceWidth = Math.hypot(
+            rightCheek.x * canvasElement.width -
+              leftCheek.x * canvasElement.width,
+            rightCheek.y * canvasElement.height -
+              leftCheek.y * canvasElement.height
+          );
+          console.log("face width:", faceWidth);
+
+          const foreheadWidth = Math.hypot(
+            rightTemple.x * canvasElement.width -
+              leftTemple.x * canvasElement.width,
+            rightTemple.y * canvasElement.height -
+              leftTemple.y * canvasElement.height
+          );
+          console.log("foreheadWidth:", foreheadWidth);
+
+          if (faceHeight > faceWidth && foreheadWidth > jawWidth) {
+            console.log("OVAL SHAPE");
+            setFaceshape("oval");
+          } else {
+            console.log("OTHER");
+            setFaceshape("other");
           }
         }
       }
@@ -68,7 +114,7 @@ function FaceMeshComponent() {
       });
       camera.start();
     }
-  }, []);
+  }, [setFaceshape]);
 
   return (
     <div>

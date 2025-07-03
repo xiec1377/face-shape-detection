@@ -7,6 +7,7 @@ function Home() {
   const [notes, setNotes] = useState([]);
   const [content, setContent] = useState("");
   const [title, setTitle] = useState("");
+  const [faceShape, setFaceShape] = useState("");
 
   useEffect(() => {
     getNotes();
@@ -58,7 +59,8 @@ function Home() {
   return (
     <div>
       <h2>Create a note</h2>
-      <FaceMeshComponent />
+      <FaceMeshComponent setFaceshape={setFaceShape} />
+      <div>the face shape is {faceShape}</div>
       {/* <form onSubmit={createNote}>
         <label htmlFor="title">title</label>
         <br />

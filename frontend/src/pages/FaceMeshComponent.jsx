@@ -64,6 +64,11 @@ function FaceMeshComponent({ setFaceshape }) {
           console.log("left cheek:", leftCheek);
           const rightCheek = landmarks[323];
           console.log("right cheek:", rightCheek);
+          const cheekWidth = Math.hypot(
+            rightCheek.x * canvasElement.width - leftCheek.x * canvasElement.width,
+            rightCheek.y * canvasElement.height - leftCheek.y * canvasElement.height
+          );
+
 
           const faceHeight = Math.hypot(
             chin.x * canvasElement.width - forehead.x * canvasElement.width,
@@ -96,6 +101,18 @@ function FaceMeshComponent({ setFaceshape }) {
           if (faceHeight > faceWidth && foreheadWidth > jawWidth) {
             console.log("OVAL SHAPE");
             setFaceshape("oval");
+          } else if (Math.abs(faceHeight - faceWidth) < 20 && jawWidth < cheekWidth && jawWidth < cheekWidth) {
+            console.log("ROUND SHAPE");
+            setFaceshape("round");
+          } else if (Math.abs(faceHeight - faceWidth) < 20 && Math.abs(jawWidth - foreheadWidth) < 20) {
+            console.log("SQUARE SHAPE");
+            setFaceshape("square");
+          } else if (jawWidth < foreheadWidth && Math.abs(foreheadWidth - cheekWidth) < 20) {
+            console.log("HEART SHAPE");
+            setFaceshape("heart");
+          } else if (faceHeight > faceWidth && jawWidth < cheekWidth && foreheadWidth < cheekWidth) {
+            console.log("DIAMOND SHAPE");
+            setFaceshape("diamond");
           } else {
             console.log("OTHER");
             setFaceshape("other");

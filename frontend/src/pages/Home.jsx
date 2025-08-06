@@ -9,9 +9,9 @@ function Home() {
   const [title, setTitle] = useState("");
   const [faceShape, setFaceShape] = useState("");
 
-  useEffect(() => {
-    getNotes();
-  }, []);
+  // useEffect(() => {
+  //   getNotes();
+  // }, []);
 
   const getNotes = () => {
     api

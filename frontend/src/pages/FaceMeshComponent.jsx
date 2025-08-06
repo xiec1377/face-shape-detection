@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { FaceMesh } from "@mediapipe/face_mesh";
-import { Camera } from "@mediapipe/camera_utils";
 
 function FaceMeshComponent({ setFaceshape }) {
-  const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const imageRef = useRef(null);
+
   useEffect(() => {
     const faceMesh = new FaceMesh({
       locateFile: (file) =>
@@ -46,6 +46,7 @@ function FaceMeshComponent({ setFaceshape }) {
             canvasCtx.fillStyle = "lime";
             canvasCtx.fill();
           }
+
           const chin = landmarks[152];
           console.log("chin:", chin);
           const leftJaw = landmarks[234];
@@ -68,6 +69,7 @@ function FaceMeshComponent({ setFaceshape }) {
             rightCheek.x * canvasElement.width - leftCheek.x * canvasElement.width,
             rightCheek.y * canvasElement.height - leftCheek.y * canvasElement.height
           );
+          console.log("cheek width:", cheekWidth);
 
 
           const faceHeight = Math.hypot(
@@ -98,49 +100,52 @@ function FaceMeshComponent({ setFaceshape }) {
           );
           console.log("foreheadWidth:", foreheadWidth);
 
-          if (faceHeight > faceWidth && foreheadWidth > jawWidth) {
-            console.log("OVAL SHAPE");
+          if (faceHeight - faceWidth > 5 && foreheadWidth - jawWidth <= 5) {
             setFaceshape("oval");
-          } else if (Math.abs(faceHeight - faceWidth) < 20 && jawWidth < cheekWidth && jawWidth < cheekWidth) {
+          } else if (Math.abs(faceHeight - faceWidth) < 5 && jawWidth < faceWidth && jawWidth < faceWidth) {
             console.log("ROUND SHAPE");
             setFaceshape("round");
-          } else if (Math.abs(faceHeight - faceWidth) < 20 && Math.abs(jawWidth - foreheadWidth) < 20) {
+          } else if (Math.abs(faceHeight - faceWidth) < 5 && Math.abs(jawWidth - foreheadWidth) < 5) {
             console.log("SQUARE SHAPE");
             setFaceshape("square");
-          } else if (jawWidth < foreheadWidth && Math.abs(foreheadWidth - cheekWidth) < 20) {
+          } else if (foreheadWidth - jawWidth > 5 && Math.abs(foreheadWidth - faceWidth) < 5) {
             console.log("HEART SHAPE");
             setFaceshape("heart");
-          } else if (faceHeight > faceWidth && jawWidth < cheekWidth && foreheadWidth < cheekWidth) {
+          } else if (faceHeight - faceWidth > 5 && jawWidth - faceWidth > 5 && foreheadWidth - faceWidth > 5) {
             console.log("DIAMOND SHAPE");
             setFaceshape("diamond");
           } else {
-            console.log("OTHER");
             setFaceshape("other");
           }
         }
       }
+
       canvasCtx.restore();
     });
-    if (typeof videoRef.current !== "undefined" && videoRef.current !== null) {
-      const camera = new Camera(videoRef.current, {
-        onFrame: async () => {
-          await faceMesh.send({ image: videoRef.current });
-        },
-        width: 640,
-        height: 480,
-      });
-      camera.start();
-    }
+
+    window._faceMesh = faceMesh;
   }, [setFaceshape]);
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const img = imageRef.current;
+    img.src = URL.createObjectURL(file);
+
+    img.onload = async () => {
+      const canvas = canvasRef.current;
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      await window._faceMesh.send({ image: img });
+    };
+  };
 
   return (
     <div>
-      <video
-        ref={videoRef}
-        style={{ display: "none" }}
-        width="640"
-        height="480"
-      />
+      <input type="file" accept="image/*" onChange={handleImageUpload} />
+      <img ref={imageRef} style={{ display: "none" }} alt="Uploaded" />
       <canvas ref={canvasRef} width="640" height="480" />
     </div>
   );
